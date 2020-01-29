@@ -1,4 +1,4 @@
-CodeQuiz
+CodeQuiz - Homework
 
 Press start to start the quiz
 A 30 countdown will start

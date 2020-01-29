@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="row justify-content-center">
+    <div class="col-md-4">
+      <div class="card">
+        <h5 class="card-header">Rules</h5>
+        <div class="card-body">
+          <ul>
+            <li>You have 60 seconds to complete the quiz.</li>
+            <li>If you get a question wrong 10 seconds is removed form the timer.</li>
+            <li>If the timer hits 0 seconds you lose.</li>
+          </ul>
+          <p class="card-text"></p>
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">JavaScript Quiz</h5>
+        <div class="card-body">
+          <h5 id="startTitle" class="card-title">Press start to begin the quiz</h5>
+          <h5 id="question"></h5>
+          <div id="answers">
+
+          </div>
+          <p class="card-text"></p>
+          <a href="#" id="start" class="btn btn-primary">Start</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card">
+        <h5 class="card-header">Timer</h5>
+        <div class="card-body">
+          <h5 class="card-title" id="time">60</h5>
+          <h5 class="card-title"> Seconds</h5>
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">Scoreboard</h5>
+        <div class="card-body">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Correct</th>
+                <th scope="col">Wrong</th>
+              </tr>
+            </thead>
+            <tbody id="tblScoreboard">
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+    crossorigin="anonymous"></script>
+  <script>
+    let questions =
+      [
+        {
+          question: "How to you grab a element from the page by its ID?",
+          answers: ["GrabByID", "GetElementByID", "GetByID", "Any of these work"],
+          correctAnswer: "GetElementByID"
+        },
+        {
+          question: "How do you change the text inside an html tag?",
+          answers: [".insidetext", ".elementtext", ".textcontent", ".innertext"],
+          correctAnswer: ".textcontent"
+        },
+        {
+          question: "How do you watch for when a button is clicked?",
+          answers: [".AddEventListener('click')", ".Listen", ".ifClicked", "None of these"],
+          correctAnswer: ".AddEventListener('click')"
+        }
+      ]
+
+    let amtTime = 30
+    let questionCount = 0
+    let correctCount = 0
+    let wrongCount = 0
+    let loadScoreboard = function () {
+      for (let i = 0, len = localStorage.length; i < len; ++i) {
+        let scr = JSON.parse(localStorage.getItem(localStorage.key(i)))
+        let scrElem = $('<tr>')
+        let scrName = $('<td>')
+        scrName.text(scr.name)
+        let scrCorrect = $('<td>')
+        scrCorrect.text(scr.correct)
+        let scrWrong = $('<td>')
+        scrWrong.text(scr.wrong)
+        scrElem.append(scrName)
+        scrElem.append(scrCorrect)
+        scrElem.append(scrWrong)
+        $('#tblScoreboard').append(scrElem)
+      }
+    }
+    loadScoreboard()
+
+    const resetGame = function () {
+      document.getElementById("startTitle").style.visibility = "visible"
+      document.getElementById("start").style.visibility = "visile"
+      amtTime = 30
+      questionCount = 0
+      correctCount = 0
+      wrongCount = 0
+      $('#question').text('')
+      $('#answers').html('')
+      location.reload()
+    }
+
+    const nextQuestion = function () {
+      if (questionCount === 2) {
+        let r = Math.random().toString(36).substring(7)
+        let name = prompt('Whats your name phool?')
+        let score = JSON.stringify
+          (
+            {
+              name: name,
+              correct: correctCount,
+              wrong: wrongCount
+            }
+          )
+        localStorage.setItem(r, score)
+        resetGame()
+      } else {
+        $('#question').text('')
+        $('#answers').html('')
+        questionCount++
+        renderQuestion()
+      }
+    }
+
+    const startQuiz = function () {
+      document.getElementById("startTitle").style.visibility = "hidden"
+      document.getElementById("start").style.visibility = "hidden"
+    }
+    const renderQuestion = function () {
+      $('#question').text(questions[questionCount].question)
+      questions[questionCount].answers.forEach(element => {
+        let answerElem = $('<button>')
+        answerElem.text(element)
+        answerElem.addClass('answer')
+        $('#answers').append(answerElem)
+      });
+      $(".answer").click(function () {
+        let myAns = $(this).text()
+        if (questions[questionCount].correctAnswer === myAns) {
+          // correct answer
+          correctCount++
+          nextQuestion()
+        } else {
+          // wrong answer
+          wrongCount++
+          amtTime -= 10
+          nextQuestion()
+        }
+      })
+    }
+
+    $('#start').on('click', () => {
+      startQuiz()
+      renderQuestion()
+
+      setInterval(function () {
+        if (amtTime === 0) {
+          resetGame()
+        } else {
+          amtTime -= 1
+          $('#time').text(amtTime)
+        }
+      }, 1000)
+    })
+  </script>
+
+
+</body>
+
+</html>
